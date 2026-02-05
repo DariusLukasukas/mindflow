@@ -1,5 +1,5 @@
 "use client";
-import { Thought } from "@/lib/types";
+import { Thought } from "@/types/types";
 import { useEffect, useState } from "react";
 import ThoughtList from "./thought-list";
 import { Button } from "../ui/button";

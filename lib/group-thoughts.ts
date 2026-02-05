@@ -1,4 +1,4 @@
-import { Thought } from "./types";
+import { Thought } from "../types/types";
 
 export const groupThoughtsByDay = (thoughts: Thought[]) => {
   const today = new Date();

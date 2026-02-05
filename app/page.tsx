@@ -12,7 +12,7 @@ import {
   deleteThought,
   loadThoughts,
 } from "@/lib/storage";
-import { Thought } from "@/lib/types";
+import { Thought } from "@/types/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function Page() {
@@ -49,7 +49,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="relative container mx-auto max-w-2xl space-y-4">
+    <div className="relative container mx-auto max-w-2xl space-y-4 px-2 pb-2 md:px-0">
       <Timer />
 
       <div className="pt-20">

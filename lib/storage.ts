@@ -1,4 +1,4 @@
-import { Thought } from "./types";
+import { Thought } from "../types/types";
 
 const STORAGE_KEY = "MINDFLOW_THOUGHTS";
 

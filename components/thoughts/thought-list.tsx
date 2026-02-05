@@ -1,5 +1,5 @@
 "use client";
-import { Thought } from "@/lib/types";
+import { Thought } from "@/types/types";
 import ThoughtRow from "./thought-row";
 import { memo } from "react";
 

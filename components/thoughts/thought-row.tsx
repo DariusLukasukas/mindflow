@@ -1,10 +1,18 @@
 "use client";
 
 import { useAppStore } from "@/lib/store";
-import { Thought } from "@/lib/types";
+import { Thought } from "@/types/types";
 import { cn } from "@/lib/utils";
 import { formatDistanceStrict } from "date-fns";
 import { memo, useEffect, useState } from "react";
+import { MoreVertical, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ThoughtRowProps {
   thought: Thought;
@@ -14,6 +22,7 @@ interface ThoughtRowProps {
 function ThoughtRow({ thought, onDelete }: ThoughtRowProps) {
   const blurEnabled = useAppStore((state) => state.blurEnabled);
   const [isHovered, setIsHovered] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isBlurred, setIsBlurred] = useState(() => {
     const timeSinceCreation = Date.now() - thought.createdAt;
     return timeSinceCreation >= 100;
@@ -32,7 +41,7 @@ function ThoughtRow({ thought, onDelete }: ThoughtRowProps) {
     }
   }, [thought.createdAt]);
 
-  const shouldBlur = blurEnabled && isBlurred && !isHovered;
+  const shouldBlur = blurEnabled && isBlurred && !isHovered && !isDropdownOpen;
 
   return (
     <li
@@ -57,6 +66,28 @@ function ThoughtRow({ thought, onDelete }: ThoughtRowProps) {
       >
         {thought.content}
       </p>
+
+      <DropdownMenu onOpenChange={setIsDropdownOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+            aria-label="More options"
+          >
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => onDelete(thought.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </li>
   );
 }
