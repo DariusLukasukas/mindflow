@@ -10,15 +10,52 @@ import {
 } from "../ui/drawer";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowUp01Icon, ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
+import { motion } from "motion/react";
 
 export default function TimerDrawer() {
   const { timerDrawerOpen, setTimerDrawerOpen, startTimer } = useAppStore();
 
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(15);
+  const constraintsRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const dragTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showDraggingCursor, setShowDraggingCursor] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (constraintsRef.current && contentRef.current) {
+        const containerWidth = constraintsRef.current.offsetWidth;
+        const contentWidth = contentRef.current.scrollWidth;
+        setHasOverflow(contentWidth > containerWidth);
+      }
+    };
+
+    // Delay check to ensure layout is complete after drawer opens
+    const timeoutId = setTimeout(() => {
+      checkOverflow();
+    }, 100);
+
+    window.addEventListener("resize", checkOverflow);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [timerDrawerOpen]);
+
+  // Cleanup drag timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dragTimeoutRef.current) {
+        clearTimeout(dragTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const incrementHours = () => setHours((h) => Math.min(23, h + 1));
   const decrementHours = () => setHours((h) => Math.max(0, h - 1));
@@ -38,7 +75,7 @@ export default function TimerDrawer() {
         {/* Timer controls*/}
         <div className="p-4">
           {/* Time picker */}
-          <div className="flex items-center justify-center gap-8 py-10">
+          <div className="flex items-center justify-center gap-8 py-6 md:py-10">
             {/* Hours */}
             <div className="flex flex-col items-center gap-1">
               <Button size={"icon"} variant={"ghost"} onClick={incrementHours}>
@@ -81,8 +118,8 @@ export default function TimerDrawer() {
               </Button>
               <Input
                 type="text"
-                min={0}
-                max={59}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={minutes}
                 onChange={(e) => {
                   const val = Math.min(
@@ -110,31 +147,61 @@ export default function TimerDrawer() {
           <div className="space-y-3">
             <p className="font-semibold tracking-wide">Presets</p>
 
-            <div className="flex flex-wrap gap-3">
-              {[
-                { label: "5", hours: 0, minutes: 5 },
-                { label: "10", hours: 0, minutes: 10 },
-                { label: "15", hours: 0, minutes: 15 },
-                { label: "25", hours: 0, minutes: 25 },
-                { label: "30", hours: 0, minutes: 30 },
-                { label: "1", hours: 1, minutes: 0 },
-              ].map((preset) => (
-                <Button
-                  key={preset.label}
-                  variant="outline"
-                  size="lg"
-                  onClick={() => {
-                    setHours(preset.hours);
-                    setMinutes(preset.minutes);
-                  }}
-                  className="hover:bg-accent flex size-20 flex-col items-center justify-center gap-0.5 rounded-full border-none p-0"
-                >
-                  <span className="text-2xl font-semibold">{preset.label}</span>
-                  <span className="text-orange-500">
-                    {preset.hours > 0 ? "HR" : "MIN"}
-                  </span>
-                </Button>
-              ))}
+            <div ref={constraintsRef} className="overflow-hidden">
+              <motion.div
+                ref={contentRef}
+                drag={hasOverflow ? "x" : false}
+                dragConstraints={constraintsRef}
+                dragElastic={0.1}
+                onDragStart={() => {
+                  isDraggingRef.current = true;
+                  setShowDraggingCursor(true);
+                }}
+                onDragEnd={() => {
+                  setShowDraggingCursor(false);
+                  // Clear any existing timeout
+                  if (dragTimeoutRef.current) {
+                    clearTimeout(dragTimeoutRef.current);
+                  }
+                  // Delay resetting to prevent click from firing
+                  dragTimeoutRef.current = setTimeout(() => {
+                    isDraggingRef.current = false;
+                  }, 100);
+                }}
+                whileTap={hasOverflow ? { cursor: "grabbing" } : undefined}
+                className="flex w-max gap-3"
+                style={{ cursor: hasOverflow ? "grab" : "default" }}
+              >
+                {[
+                  { label: "5", hours: 0, minutes: 5 },
+                  { label: "10", hours: 0, minutes: 10 },
+                  { label: "15", hours: 0, minutes: 15 },
+                  { label: "25", hours: 0, minutes: 25 },
+                  { label: "30", hours: 0, minutes: 30 },
+                  { label: "1", hours: 1, minutes: 0 },
+                ].map((preset) => (
+                  <Button
+                    key={preset.label}
+                    variant="outline"
+                    size="lg"
+                    onClick={() => {
+                      if (isDraggingRef.current) {
+                        return;
+                      }
+                      setHours(preset.hours);
+                      setMinutes(preset.minutes);
+                    }}
+                    className={`hover:bg-accent flex size-20 shrink-0 flex-col items-center justify-center gap-0.5 rounded-full border-none p-0 ${showDraggingCursor && hasOverflow ? "cursor-grabbing" : "hover:cursor-pointer"}`}
+                  >
+                    <span className="text-2xl font-semibold">
+                      {preset.label}
+                    </span>
+                    <span className="text-orange-500">
+                      {preset.hours > 0 ? "HR" : "MIN"}
+                    </span>
+                  </Button>
+                ))}
+              </motion.div>
             </div>
           </div>
         </div>
