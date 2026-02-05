@@ -23,6 +23,7 @@ export default function TimerDrawer() {
   const constraintsRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
+  const dragTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [showDraggingCursor, setShowDraggingCursor] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
 
@@ -35,10 +36,26 @@ export default function TimerDrawer() {
       }
     };
 
-    checkOverflow();
+    // Delay check to ensure layout is complete after drawer opens
+    const timeoutId = setTimeout(() => {
+      checkOverflow();
+    }, 100);
+
     window.addEventListener("resize", checkOverflow);
-    return () => window.removeEventListener("resize", checkOverflow);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", checkOverflow);
+    };
   }, [timerDrawerOpen]);
+
+  // Cleanup drag timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (dragTimeoutRef.current) {
+        clearTimeout(dragTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const incrementHours = () => setHours((h) => Math.min(23, h + 1));
   const decrementHours = () => setHours((h) => Math.max(0, h - 1));
@@ -58,7 +75,7 @@ export default function TimerDrawer() {
         {/* Timer controls*/}
         <div className="p-4">
           {/* Time picker */}
-          <div className="flex items-center justify-center gap-8 md:py-10">
+          <div className="flex items-center justify-center gap-8 py-6 md:py-10">
             {/* Hours */}
             <div className="flex flex-col items-center gap-1">
               <Button size={"icon"} variant={"ghost"} onClick={incrementHours}>
@@ -101,8 +118,8 @@ export default function TimerDrawer() {
               </Button>
               <Input
                 type="text"
-                min={0}
-                max={59}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={minutes}
                 onChange={(e) => {
                   const val = Math.min(
@@ -142,8 +159,12 @@ export default function TimerDrawer() {
                 }}
                 onDragEnd={() => {
                   setShowDraggingCursor(false);
+                  // Clear any existing timeout
+                  if (dragTimeoutRef.current) {
+                    clearTimeout(dragTimeoutRef.current);
+                  }
                   // Delay resetting to prevent click from firing
-                  setTimeout(() => {
+                  dragTimeoutRef.current = setTimeout(() => {
                     isDraggingRef.current = false;
                   }, 100);
                 }}
