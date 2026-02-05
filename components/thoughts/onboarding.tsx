@@ -73,7 +73,10 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         className="bg-border/50 mb-4 h-px w-full shrink-0"
       />
 
-      <ThoughtList thoughts={visibleThoughts} onDelete={() => {}} />
+      <ThoughtList
+        thoughtGroups={[{ label: "Today", thoughts: visibleThoughts }]}
+        onDelete={() => {}}
+      />
 
       <AnimatePresence>
         {showButton && (
