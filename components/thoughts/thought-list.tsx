@@ -6,9 +6,10 @@ import { memo } from "react";
 interface ThoughtListProps {
   thoughtGroups: { label: string; thoughts: Thought[] }[];
   onDelete: (id: string) => void;
+  onUpdate: (id: string, content: string) => void;
 }
 
-function ThoughtList({ thoughtGroups, onDelete }: ThoughtListProps) {
+function ThoughtList({ thoughtGroups, onDelete, onUpdate }: ThoughtListProps) {
   return (
     <div className="flex flex-col gap-6">
       {thoughtGroups.map((group) => (
@@ -21,12 +22,13 @@ function ThoughtList({ thoughtGroups, onDelete }: ThoughtListProps) {
               <div className="bg-border/50 my-1 h-px w-full" />
             </>
           )}
-          <ul className="flex flex-col">
+          <ul className="flex flex-col gap-2">
             {group.thoughts.map((thought) => (
               <ThoughtRow
                 key={thought.id}
                 thought={thought}
                 onDelete={onDelete}
+                onUpdate={onUpdate}
               />
             ))}
           </ul>
