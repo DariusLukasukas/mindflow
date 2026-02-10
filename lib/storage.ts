@@ -33,3 +33,9 @@ export const deleteThought = (id: string) => {
 export const deleteAllThoughts = () => {
   localStorage.removeItem(STORAGE_KEY);
 };
+
+export const updateThought = (id: string, content: string) => {
+  const thoughts = loadThoughts();
+  const updated = thoughts.map((t) => (t.id === id ? { ...t, content } : t));
+  saveThoughts(updated);
+};

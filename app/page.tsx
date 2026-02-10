@@ -11,6 +11,7 @@ import {
   deleteAllThoughts,
   deleteThought,
   loadThoughts,
+  updateThought,
 } from "@/lib/storage";
 import { Thought } from "@/types/types";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -48,6 +49,13 @@ export default function Page() {
     setThoughts([]);
   }, []);
 
+  const handleUpdate = useCallback((id: string, content: string) => {
+    updateThought(id, content);
+    setThoughts((prev) =>
+      prev.map((t: Thought) => (t.id === id ? { ...t, content } : t)),
+    );
+  }, []);
+
   return (
     <div className="relative container mx-auto max-w-2xl space-y-4 px-2 pb-2 md:px-0">
       <Timer />
@@ -60,7 +68,11 @@ export default function Page() {
             onChange={setInput}
             onSubmit={handleSubmit}
           />
-          <ThoughtList thoughtGroups={thoughtGroups} onDelete={handleDelete} />
+          <ThoughtList
+            thoughtGroups={thoughtGroups}
+            onDelete={handleDelete}
+            onUpdate={handleUpdate}
+          />
         </main>
       </div>
       <TimerDrawer />
