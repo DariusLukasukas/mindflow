@@ -76,6 +76,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       <ThoughtList
         thoughtGroups={[{ label: "Today", thoughts: visibleThoughts }]}
         onDelete={() => {}}
+        onUpdate={() => {}}
       />
 
       <AnimatePresence>
