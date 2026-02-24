@@ -27,15 +27,15 @@ export default function Header({ onDeleteAll }: HeaderProps) {
   return (
     <header className="flex items-center justify-end py-3 pl-3">
       {!focusModeEnabled && (
-        <h2 className="text-belance mr-auto text-2xl font-extrabold">
+        <h2 className="text-belance mr-auto text-3xl font-extrabold">
           {format(new Date(), "EEEE")}
-          <span className="inline-block size-1.5 rounded-full bg-green-500" />
+          <span className="inline-block size-2 rounded-full bg-green-500" />
         </h2>
       )}
 
       <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
         <DropdownMenuTrigger asChild>
-          <Button size={"icon"} variant={"ghost"}>
+          <Button size={"icon-lg"} variant={"ghost"}>
             <HugeiconsIcon
               icon={MoreHorizontalCircle01Icon}
               strokeWidth={2}
