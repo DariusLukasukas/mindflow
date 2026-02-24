@@ -93,7 +93,7 @@ function ThoughtRow({ thought, onDelete, onUpdate }: ThoughtRowProps) {
     <>
       <li
         data-editing={isEditing}
-        className="hover:bg-muted group data-[editing=true]:bg-muted relative flex flex-row items-center justify-between rounded-xl p-3 transition-colors duration-200 ease-out"
+        className="hover:bg-muted group data-[editing=true]:bg-muted relative flex flex-row items-center justify-between rounded-xl px-3 py-2 transition-colors duration-200 ease-out"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >

@@ -38,42 +38,15 @@ export default function ThemeSwitcher() {
     setMounted(true);
   }, []);
 
-  const getThemeIndex = () => {
-    switch (theme) {
-      case "light":
-        return 0;
-      case "dark":
-        return 1;
-      case "system":
-        return 2;
-      default:
-        return 0;
-    }
-  };
-
-  const buttonWidth = 28;
-  const gap = 4;
-  const translateX = getThemeIndex();
-
   return (
     <div className="bg-muted relative flex flex-row items-center gap-1 rounded-full p-1">
-      {/* Background for the selected theme */}
-      <div
-        className="bg-accent/10 absolute size-7 rounded-full"
-        style={{
-          transform: mounted
-            ? `translateX(${translateX * (buttonWidth + gap)}px)`
-            : "translateX(0px)",
-        }}
-      />
-
       {THEME_OPTIONS.map((themeOption) => (
         <Tooltip key={themeOption.label}>
           <TooltipTrigger asChild>
             <button
               onClick={() => handleThemeChange(themeOption.label)}
               className={cn(
-                "flex size-7 items-center justify-center rounded-full",
+                "flex size-6 items-center justify-center rounded-full",
                 mounted && themeOption.label.toLowerCase() === theme
                   ? "text-foreground"
                   : "text-muted-foreground",
